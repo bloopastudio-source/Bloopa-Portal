@@ -15,12 +15,12 @@ export default function Home() {
           >
             Enter Dashboard
           </Link>
-          <Link
-            href="/login"
+          <a
+            href="#"
             className="rounded-full border border-coral px-6 py-3 font-heading text-coral transition hover:-translate-y-0.5"
           >
             Client Login
-          </Link>
+          </a>
         </div>
       </div>
     </main>

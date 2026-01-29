@@ -59,11 +59,13 @@ model Client {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   members     ClientMember[]
+  tasks       Task[]
   calendarItems CalendarItem[]
   deliverables Deliverable[]
   brandAssets  BrandAsset[]
   credentials  Credential[]
   approvals    Approval[]
+  messages    Message[]
   shoots       Shoot[]
   invoices     Invoice[]
   reports      Report[]
@@ -77,6 +79,8 @@ model ClientMember {
   userId    String
   roleLabel String?
   createdAt DateTime @default(now())
+
+  @@unique([clientId, userId])
 }
 
 model Task {

@@ -2,6 +2,8 @@
 
 A comprehensive Agency Operating System built with Next.js, TypeScript, Tailwind CSS, and Prisma.
 
+![Bloopa Agency OS Homepage](https://github.com/user-attachments/assets/740faf8c-887b-49fa-982a-e956a311c3ef)
+
 ## Features
 
 - **Project Management**: Track and manage agency projects with status updates, timelines, and budgets

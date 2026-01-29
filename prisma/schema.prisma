@@ -7,6 +7,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  DONE
+  CANCELLED
+}
+
 enum Role {
   ADMIN
   MANAGER
@@ -43,7 +51,11 @@ model User {
   id        String   @id @default(uuid())
   email     String   @unique
   name      String
+  password  String?
+  emailVerified Boolean @default(false)
+  image     String?
   role      Role
+  lastLoginAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   clientMembers ClientMember[]
@@ -73,21 +85,23 @@ model Client {
 
 model ClientMember {
   id        String   @id @default(uuid())
-  client    Client   @relation(fields: [clientId], references: [id])
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   clientId  String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   roleLabel String?
   createdAt DateTime @default(now())
+  
+  @@unique([clientId, userId])
 }
 
 model Task {
   id        String   @id @default(uuid())
   title     String
-  status    String
+  status    TaskStatus @default(TODO)
   assignedTo User?   @relation(fields: [assignedToId], references: [id])
   assignedToId String?
-  client    Client?  @relation(fields: [clientId], references: [id])
+  client    Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
   clientId  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -95,7 +109,7 @@ model Task {
 
 model CalendarItem {
   id        String   @id @default(uuid())
-  client    Client   @relation(fields: [clientId], references: [id])
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   clientId  String
   date      DateTime
   platform  String
@@ -104,11 +118,15 @@ model CalendarItem {
   status    CalendarStatus
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  @@index([clientId])
+  @@index([date])
+  @@index([clientId, date])
 }
 
 model Deliverable {
   id        String   @id @default(uuid())
-  client    Client   @relation(fields: [clientId], references: [id])
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   clientId  String
   type      String
   promised  Int
@@ -121,7 +139,7 @@ model Deliverable {
 
 model Approval {
   id        String   @id @default(uuid())
-  client    Client   @relation(fields: [clientId], references: [id])
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   clientId  String
   title     String
   assetUrl  String
@@ -138,14 +156,14 @@ model Message {
   content   String
   sender    User     @relation(fields: [senderId], references: [id])
   senderId  String
-  client    Client?  @relation(fields: [clientId], references: [id])
+  client    Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
   clientId  String?
   createdAt DateTime @default(now())
 }
 
 model BrandAsset {
   id        String   @id @default(uuid())
-  client    Client   @relation(fields: [clientId], references: [id])
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   clientId  String
   type      String
   label     String
@@ -155,7 +173,7 @@ model BrandAsset {
 
 model Credential {
   id        String   @id @default(uuid())
-  client    Client   @relation(fields: [clientId], references: [id])
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   clientId  String
   service   String
   username  String
@@ -165,7 +183,7 @@ model Credential {
 
 model Shoot {
   id        String   @id @default(uuid())
-  client    Client   @relation(fields: [clientId], references: [id])
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   clientId  String
   date      DateTime
   location  String
@@ -177,9 +195,9 @@ model Shoot {
 
 model Invoice {
   id        String   @id @default(uuid())
-  client    Client   @relation(fields: [clientId], references: [id])
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   clientId  String
-  amount    Float
+  amount    Decimal  @db.Decimal(10, 2)
   status    InvoiceStatus
   issuedAt  DateTime
   createdAt DateTime @default(now())
@@ -189,16 +207,16 @@ model Expense {
   id        String   @id @default(uuid())
   category  String
   description String
-  amount    Float
+  amount    Decimal  @db.Decimal(10, 2)
   incurredAt DateTime
   createdAt DateTime @default(now())
 }
 
 model Report {
   id        String   @id @default(uuid())
-  client    Client   @relation(fields: [clientId], references: [id])
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   clientId  String
   month     String
-  onTimePercentage Float
+  onTimePercentage Decimal @db.Decimal(5, 2)
   createdAt DateTime @default(now())
 }

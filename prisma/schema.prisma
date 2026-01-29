@@ -59,8 +59,10 @@ model Client {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   members     ClientMember[]
+  tasks       Task[]
   calendarItems CalendarItem[]
   deliverables Deliverable[]
+  messages    Message[]
   brandAssets  BrandAsset[]
   credentials  Credential[]
   approvals    Approval[]

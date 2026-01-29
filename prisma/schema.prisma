@@ -1,0 +1,202 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  TEAM
+  CLIENT
+}
+
+enum CalendarStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  READY
+  APPROVED
+  POSTED
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  CHANGES_REQUESTED
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+}
+
+enum ShootStatus {
+  PLANNED
+  COMPLETE
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  role      Role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  clientMembers ClientMember[]
+  tasks     Task[]
+  messages  Message[]
+  approvals Approval[]
+}
+
+model Client {
+  id          String   @id @default(uuid())
+  name        String
+  industry    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  members     ClientMember[]
+  calendarItems CalendarItem[]
+  deliverables Deliverable[]
+  brandAssets  BrandAsset[]
+  credentials  Credential[]
+  approvals    Approval[]
+  shoots       Shoot[]
+  invoices     Invoice[]
+  reports      Report[]
+}
+
+model ClientMember {
+  id        String   @id @default(uuid())
+  client    Client   @relation(fields: [clientId], references: [id])
+  clientId  String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  roleLabel String?
+  createdAt DateTime @default(now())
+}
+
+model Task {
+  id        String   @id @default(uuid())
+  title     String
+  status    String
+  assignedTo User?   @relation(fields: [assignedToId], references: [id])
+  assignedToId String?
+  client    Client?  @relation(fields: [clientId], references: [id])
+  clientId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CalendarItem {
+  id        String   @id @default(uuid())
+  client    Client   @relation(fields: [clientId], references: [id])
+  clientId  String
+  date      DateTime
+  platform  String
+  type      String
+  assignedTeam String
+  status    CalendarStatus
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Deliverable {
+  id        String   @id @default(uuid())
+  client    Client   @relation(fields: [clientId], references: [id])
+  clientId  String
+  type      String
+  promised  Int
+  delivered Int
+  delayed   Int
+  revisions Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Approval {
+  id        String   @id @default(uuid())
+  client    Client   @relation(fields: [clientId], references: [id])
+  clientId  String
+  title     String
+  assetUrl  String
+  status    ApprovalStatus
+  feedback  String?
+  requestedBy User @relation(fields: [requestedById], references: [id])
+  requestedById String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  content   String
+  sender    User     @relation(fields: [senderId], references: [id])
+  senderId  String
+  client    Client?  @relation(fields: [clientId], references: [id])
+  clientId  String?
+  createdAt DateTime @default(now())
+}
+
+model BrandAsset {
+  id        String   @id @default(uuid())
+  client    Client   @relation(fields: [clientId], references: [id])
+  clientId  String
+  type      String
+  label     String
+  url       String
+  createdAt DateTime @default(now())
+}
+
+model Credential {
+  id        String   @id @default(uuid())
+  client    Client   @relation(fields: [clientId], references: [id])
+  clientId  String
+  service   String
+  username  String
+  encryptedValue String
+  createdAt DateTime @default(now())
+}
+
+model Shoot {
+  id        String   @id @default(uuid())
+  client    Client   @relation(fields: [clientId], references: [id])
+  clientId  String
+  date      DateTime
+  location  String
+  people    String
+  props     String
+  status    ShootStatus
+  createdAt DateTime @default(now())
+}
+
+model Invoice {
+  id        String   @id @default(uuid())
+  client    Client   @relation(fields: [clientId], references: [id])
+  clientId  String
+  amount    Float
+  status    InvoiceStatus
+  issuedAt  DateTime
+  createdAt DateTime @default(now())
+}
+
+model Expense {
+  id        String   @id @default(uuid())
+  category  String
+  description String
+  amount    Float
+  incurredAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Report {
+  id        String   @id @default(uuid())
+  client    Client   @relation(fields: [clientId], references: [id])
+  clientId  String
+  month     String
+  onTimePercentage Float
+  createdAt DateTime @default(now())
+}

@@ -40,33 +40,36 @@ enum ShootStatus {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String
-  role      Role
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String         @id @default(uuid())
+  email         String         @unique
+  name          String
+  passwordHash  String
+  role          Role
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   clientMembers ClientMember[]
-  tasks     Task[]
-  messages  Message[]
-  approvals Approval[]
+  tasks         Task[]
+  messages      Message[]
+  approvals     Approval[]
 }
 
 model Client {
-  id          String   @id @default(uuid())
-  name        String
-  industry    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  members     ClientMember[]
+  id            String         @id @default(uuid())
+  name          String
+  industry      String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  members       ClientMember[]
+  tasks         Task[]
   calendarItems CalendarItem[]
-  deliverables Deliverable[]
-  brandAssets  BrandAsset[]
-  credentials  Credential[]
-  approvals    Approval[]
-  shoots       Shoot[]
-  invoices     Invoice[]
-  reports      Report[]
+  deliverables  Deliverable[]
+  brandAssets   BrandAsset[]
+  credentials   Credential[]
+  approvals     Approval[]
+  messages      Message[]
+  shoots        Shoot[]
+  invoices      Invoice[]
+  reports       Report[]
 }
 
 model ClientMember {
@@ -80,28 +83,33 @@ model ClientMember {
 }
 
 model Task {
-  id        String   @id @default(uuid())
-  title     String
-  status    String
-  assignedTo User?   @relation(fields: [assignedToId], references: [id])
+  id           String   @id @default(uuid())
+  title        String
+  status       String
+  assignedTo   User?    @relation(fields: [assignedToId], references: [id])
   assignedToId String?
-  client    Client?  @relation(fields: [clientId], references: [id])
-  clientId  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  client       Client?  @relation(fields: [clientId], references: [id])
+  clientId     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([assignedToId])
+  @@index([clientId])
 }
 
 model CalendarItem {
-  id        String   @id @default(uuid())
-  client    Client   @relation(fields: [clientId], references: [id])
-  clientId  String
-  date      DateTime
-  platform  String
-  type      String
+  id           String         @id @default(uuid())
+  client       Client         @relation(fields: [clientId], references: [id])
+  clientId     String
+  date         DateTime
+  platform     String
+  type         String
   assignedTeam String
-  status    CalendarStatus
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  status       CalendarStatus
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([clientId])
 }
 
 model Deliverable {
@@ -115,20 +123,25 @@ model Deliverable {
   revisions Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([clientId])
 }
 
 model Approval {
-  id        String   @id @default(uuid())
-  client    Client   @relation(fields: [clientId], references: [id])
-  clientId  String
-  title     String
-  assetUrl  String
-  status    ApprovalStatus
-  feedback  String?
-  requestedBy User @relation(fields: [requestedById], references: [id])
+  id            String         @id @default(uuid())
+  client        Client         @relation(fields: [clientId], references: [id])
+  clientId      String
+  title         String
+  assetUrl      String
+  status        ApprovalStatus
+  feedback      String?
+  requestedBy   User           @relation(fields: [requestedById], references: [id])
   requestedById String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([clientId])
+  @@index([requestedById])
 }
 
 model Message {
@@ -139,6 +152,9 @@ model Message {
   client    Client?  @relation(fields: [clientId], references: [id])
   clientId  String?
   createdAt DateTime @default(now())
+
+  @@index([senderId])
+  @@index([clientId])
 }
 
 model BrandAsset {
@@ -149,54 +165,64 @@ model BrandAsset {
   label     String
   url       String
   createdAt DateTime @default(now())
+
+  @@index([clientId])
 }
 
 model Credential {
-  id        String   @id @default(uuid())
-  client    Client   @relation(fields: [clientId], references: [id])
-  clientId  String
-  service   String
-  username  String
-  encryptedValue String
-  createdAt DateTime @default(now())
+  id             String   @id @default(uuid())
+  client         Client   @relation(fields: [clientId], references: [id])
+  clientId       String
+  service        String
+  username       String
+  encryptedValue String // NOTE: Encrypt using AES-256-GCM before storing
+  createdAt      DateTime @default(now())
+
+  @@index([clientId])
 }
 
 model Shoot {
-  id        String   @id @default(uuid())
-  client    Client   @relation(fields: [clientId], references: [id])
+  id        String      @id @default(uuid())
+  client    Client      @relation(fields: [clientId], references: [id])
   clientId  String
   date      DateTime
   location  String
-  people    String
-  props     String
+  people    String // NOTE: Consider normalizing into a separate ShootPerson model for better data structure
+  props     String // NOTE: Consider normalizing into a separate ShootProp model for better data structure
   status    ShootStatus
-  createdAt DateTime @default(now())
+  createdAt DateTime    @default(now())
+
+  @@index([clientId])
 }
 
 model Invoice {
-  id        String   @id @default(uuid())
-  client    Client   @relation(fields: [clientId], references: [id])
+  id        String        @id @default(uuid())
+  client    Client        @relation(fields: [clientId], references: [id])
   clientId  String
   amount    Float
   status    InvoiceStatus
   issuedAt  DateTime
-  createdAt DateTime @default(now())
+  createdAt DateTime      @default(now())
+
+  @@index([clientId])
 }
 
 model Expense {
-  id        String   @id @default(uuid())
-  category  String
+  id          String   @id @default(uuid())
+  category    String
   description String
-  amount    Float
-  incurredAt DateTime
-  createdAt DateTime @default(now())
+  amount      Float
+  incurredAt  DateTime
+  createdAt   DateTime @default(now())
 }
 
 model Report {
-  id        String   @id @default(uuid())
-  client    Client   @relation(fields: [clientId], references: [id])
-  clientId  String
-  month     String
+  id               String   @id @default(uuid())
+  client           Client   @relation(fields: [clientId], references: [id])
+  clientId         String
+  month            String
   onTimePercentage Float
-  createdAt DateTime @default(now())
+  createdAt        DateTime @default(now())
+
+  @@index([clientId])
 }

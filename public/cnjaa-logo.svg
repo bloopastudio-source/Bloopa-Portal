@@ -1,0 +1,31 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- CNJAA Swan Logo Placeholder -->
+  <defs>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#D6A240;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#B28E4A;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Swan body -->
+  <path d="M 100 150 Q 80 130, 75 100 Q 70 70, 80 50 Q 90 30, 110 35 Q 125 40, 120 60 Q 115 80, 100 90 Q 85 100, 100 150 Z" 
+        fill="url(#goldGradient)" stroke="#5D5B58" stroke-width="2"/>
+  
+  <!-- Swan neck -->
+  <path d="M 110 35 Q 120 20, 135 15 Q 145 12, 150 20 Q 152 25, 148 30 Q 140 35, 125 40" 
+        fill="url(#goldGradient)" stroke="#5D5B58" stroke-width="2"/>
+  
+  <!-- Swan head -->
+  <circle cx="150" cy="20" r="8" fill="url(#goldGradient)" stroke="#5D5B58" stroke-width="2"/>
+  
+  <!-- Eye -->
+  <circle cx="152" cy="19" r="2" fill="#5D5B58"/>
+  
+  <!-- Wings -->
+  <path d="M 95 80 Q 70 85, 60 95 Q 55 100, 62 105 Q 75 110, 90 105" 
+        fill="url(#goldGradient)" stroke="#5D5B58" stroke-width="1.5" opacity="0.8"/>
+  
+  <!-- Text CNJAA -->
+  <text x="100" y="180" font-family="Marcellus, serif" font-size="20" font-weight="bold" 
+        text-anchor="middle" fill="#5D5B58">CNJAA</text>
+</svg>
